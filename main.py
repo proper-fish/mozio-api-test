@@ -35,21 +35,22 @@ async def script():
     search_id = await api_client.search(search_input)
 
     # getting search results
-    search_result = await api_client.poll_search(search_id)
-
-    print(search_result)
+    full_search_result = []
+    while True:
+        search_result = await api_client.poll_search(search_id)
+        full_search_result.extend(search_result["results"])
+        if search_result["more_coming"] is True:
+            time.sleep(2)
+        else:
+            break
 
     # choosing the offer according to provider & price conditions
     fitting_result_id = api_client.find_best_fitting_offer(search_result, provider_name)
-
-    print(fitting_result_id)
 
     # creating a reservations for the chosen offer
     create_reservation_status = await api_client.create_reservation(reservation_input,
                                                                     search_id=search_id,
                                                                     result_id=fitting_result_id)
-
-    print(create_reservation_status)
 
     while True:
         reservation = await api_client.poll_reservations(search_id)
@@ -62,8 +63,6 @@ async def script():
 
     reservation_id = reservation["reservations"][0]["id"]
     confirmation_number = reservation["reservations"][0]["confirmation_number"]
-
-    print(reservation_id)
 
     # cancelling the reservation
     await api_client.cancel_reservation(reservation_id)
