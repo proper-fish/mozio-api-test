@@ -45,7 +45,7 @@ async def script():
             break
 
     # choosing the offer according to provider & price conditions
-    fitting_result_id = api_client.find_best_fitting_offer(search_result, provider_name)
+    fitting_result_id = api_client.find_best_fitting_offer(full_search_result[0], provider_name)
 
     # creating a reservations for the chosen offer
     create_reservation_status = await api_client.create_reservation(reservation_input,
